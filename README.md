@@ -15,15 +15,57 @@ The reference deployment uses the **Nyx** cosmological ensemble
 (parameters OmM, OmB, h; 256³ log-density fields), and the architecture is
 dataset-agnostic — see [Using other datasets](#using-other-datasets).
 
-| Module | What it does |
-|---|---|
-| 🗺 **1 · Data Exploration** | Ensemble landscape (mean/std scatter, clustering, outliers), member search and filters, parallel coordinates, parameter sensitivity, per-member volume rendering |
-| 🔭 **2 · Uncertainty Model Prediction** | Evidential INR prediction for user-chosen parameters: predicted field + aleatoric/epistemic uncertainty volumes, Student-t prediction intervals, and conformally calibrated intervals at a chosen confidence level |
-| 🧭 **3 · Para-space Exploration** | Gradient-based search over the parameter space: recommend parameters whose prediction best matches a reference inside a 3D region of interest, ranked by uncertainty preference; differentiable parameter-sensitivity curves |
+The tool is organized as three linked modules, one per tab.
+
+## Module 1 · 🗺 Data Exploration
+
+Explore the raw ensemble before trusting the surrogate. The landscape scatter
+places all 380 members by their (mean, std) of log10 density, colored by the
+INR data split (training / calibration / testing) or by statistical clusters,
+with outliers ring-marked. Filters, free-text search, and axis brushing on the
+parallel coordinates all stay linked with the landscape; clicking any member
+volume-renders it on the right with its parameters, outlier verdict, and
+spatial statistics. The bottom panel shows how the ensemble mean and std
+respond to each simulation parameter.
 
 ![Module 1 — Data Exploration](docs/module1_data_exploration.png)
+*Module 1: ensemble landscape (center) with linked filters and member search
+(left), the focused member's volume rendering and statistics (right), parallel
+coordinates linking parameters to statistics, and per-parameter sensitivity
+curves (bottom).*
+
+## Module 2 · 🔭 Uncertainty Model Prediction
+
+Query the evidential INR surrogate at any parameter setting. Each submitted
+run adds one aligned row to both views: the middle view renders the predicted
+density field next to its aleatoric (data-inherent) and epistemic (model
+knowledge) uncertainty volumes; the right view turns the same prediction into
+a Student-t prediction interval at a chosen confidence level, and one click
+conformally calibrates the interval bounds. A shared region of interest and a
+synchronized camera apply to every 3D view.
+
 ![Module 2 — Uncertainty Model Prediction](docs/module2_uncertainty_prediction.png)
-![Module 3 — Para-space Exploration](docs/module3_paraspace_exploration.png)
+*Module 2: parameter input and prediction history (left); per-run predicted
+field with aleatoric / epistemic uncertainty (middle); per-run confidence-level
+selector with interval width, lower, and upper bounds before or after conformal
+calibration (right).*
+
+## Module 3 · 🧭 Parameter-Space Exploration
+
+Invert the surrogate: instead of asking "what does this parameter setting
+produce," ask "which parameter settings produce this." Load a context field,
+box a 3D region of interest, and pick an optimization target; a gradient-based
+search over (OmM, OmB, h) then recommends the settings whose prediction best
+matches the reference inside the ROI, ranked by your preference for high or
+low data/model uncertainty. Each recommendation can be previewed in place or
+sent back to Module 2 as a new run; surrogate-gradient sensitivity curves for
+the current ROI render at the bottom of the page.
+
+![Module 3 — Parameter-Space Exploration](docs/module3_paraspace_exploration.png)
+*Module 3: context field, ROI, and optimization target (left); predicted field
+with Student-t and conformally calibrated interval bounds, ROI box overlaid
+(middle); ranked parameter recommendations with per-candidate uncertainty and
+one-click handoff to Module 2 (right).*
 
 ## Repository layout
 
