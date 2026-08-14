@@ -1,0 +1,6 @@
+# nyx backend deps (conda env: nyx, python 3.9)
+torch==2.2.2
+numpy<2            # torch 2.2.2 与 numpy>=2 不兼容
+scipy
+flask
+vtk

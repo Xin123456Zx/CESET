@@ -1,0 +1,59 @@
+{
+ "description": "Empirical statistics of the first 430 Nyx ensemble members (aligned with the evidential INR splits: train 0-149, calibration 200-399, test 400-429), computed in log10(density) space.",
+ "source_root": "nyx/256/output (2000-member Nyx ensemble)",
+ "timestep": "Raw_plt256_00200",
+ "n_members": 430,
+ "member_ids": [
+  0,
+  429
+ ],
+ "dims": [
+  256,
+  256,
+  256
+ ],
+ "dtype": "float32 little-endian, same C-order layout as source density.bin",
+ "value_space": "log10(rho)",
+ "quantile_method": "linear interpolation (np.quantile default)",
+ "params": {
+  "OmM": "Omega_m",
+  "OmB": "Omega_b",
+  "h": "Hubble"
+ },
+ "files": {
+  "members.csv/json": "member-wise stats + simulation params",
+  "voxelwise/*.bin": [
+   "entropy",
+   "iqr",
+   "kurt",
+   "mad",
+   "max",
+   "mean",
+   "median",
+   "min",
+   "q05",
+   "q25",
+   "q75",
+   "q95",
+   "range",
+   "skew",
+   "std",
+   "w90"
+  ],
+  "dist_matrix.bin": "400x400 <f4, member pairwise L2 distance (log10 space)",
+  "corr_matrix.bin": "400x400 <f4, Pearson corr of anomaly fields (member - voxelwise mean)",
+  "histograms.json": "per-member & global 64-bin histograms",
+  "sensitivity.json": "Spearman rho/p, params x responses",
+  "ensemble_summary.json": "scatter helpers: crosshair lines, cov, 90% ellipse"
+ },
+ "definitions": {
+  "skew/kurt": "standardized 3rd / excess 4th moment (Fisher)",
+  "mad": "median absolute deviation around voxel-wise median",
+  "entropy": "Shannon entropy (nats) of 64-bin histogram over global log10 range",
+  "grad_mean": "spatial mean of gradient magnitude (np.gradient)",
+  "outlier_maha": "Mahalanobis distance in (mean,std) plane; >2.146 = outside 90% Gaussian ellipse",
+  "outlier_struct": "robust z-score of mean L2 distance to all other members",
+  "w90": "q95 - q05",
+  "iqr": "q75 - q25"
+ }
+}

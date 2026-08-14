@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Shared purple accent for Element Plus controls (sliders / radios / buttons / inputs)
+   across all three modules — keeps the three tabs visually coherent */
+.explore-accent {
+  --el-color-primary: #7c74d8;
+  --el-color-primary-light-3: #a49ee6;
+  --el-color-primary-light-5: #beb9ef;
+  --el-color-primary-light-7: #d8d5f6;
+  --el-color-primary-light-8: #e5e3f9;
+  --el-color-primary-light-9: #f2f1fc;
+  --el-color-primary-dark-2: #5f56c0;
+}
+/* Compact slider: remove element's default large vertical padding */
+.explore-accent .el-slider {
+  height: 22px;
+}
+
+@layer components {
+  /* Card panel shared by all modules (same look as Module 1's panels) */
+  .panel {
+    @apply border border-[#e5e5e5] rounded-[10px] bg-white;
+  }
+  /* Panel header strip (light gray, like Module 1's "Focused member" header) */
+  .panel-head {
+    @apply px-3 py-1.5 border-b border-[#eee] bg-gray-50 rounded-t-[10px] flex items-center justify-between gap-2;
+  }
+  .panel-title {
+    @apply text-[13.5px] font-semibold whitespace-nowrap;
+  }
+  /* Small gray explanation next to / under titles */
+  .hint {
+    @apply text-[12px] text-gray-400;
+  }
+  /* Column header of a rendering grid: name + one-line description of what is shown */
+  .col-title {
+    @apply text-center leading-tight;
+  }
+  .col-title .name {
+    @apply text-[12.5px] font-semibold block;
+  }
+  .col-title .desc {
+    @apply text-[10.5px] text-gray-400 font-normal block;
+  }
+  /* Rounded pill tag (Module 1's parameter chips) */
+  .pill {
+    @apply bg-[#ACACFF] text-white rounded-full px-2.5 py-0 text-[11.5px] inline-block;
+  }
+}

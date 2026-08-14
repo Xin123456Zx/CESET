@@ -1,0 +1,26 @@
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+env/
+
+# --- Node / Vite ---
+frontend/node_modules/
+frontend/dist/
+frontend/node_modules/.vite*/
+
+# --- Runtime-generated artifacts ---
+*.log
+backend/cache/*
+!backend/cache/.gitkeep
+frontend/public/nyx/*
+!frontend/public/nyx/.gitkeep
+frontend/public/ensemble/*.vti
+
+# --- Secrets (use ai_config.example.json as a template) ---
+backend/ai_config.json
+
+# --- Large optional data (see README: Optional data) ---
+ensemble_stats_430/voxelwise/
+ensemble_stats_430/*.bin
+data/
