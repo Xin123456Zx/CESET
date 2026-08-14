@@ -1,0 +1,4 @@
+# Keep binary assets out of text diffs/EOL conversion
+*.pth binary
+*.png binary
+*.vti binary
