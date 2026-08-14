@@ -28,7 +28,7 @@ volume-renders it on the right with its parameters, outlier verdict, and
 spatial statistics. The bottom panel shows how the ensemble mean and std
 respond to each simulation parameter.
 
-![Module 1 — Data Exploration](docs/module1_data_exploration.png)
+![Module 1 — Data Exploration](docs/01_data_exploration.png)
 *Module 1: ensemble landscape (center) with linked filters and member search
 (left), the focused member's volume rendering and statistics (right), parallel
 coordinates linking parameters to statistics, and per-parameter sensitivity
@@ -44,7 +44,7 @@ a Student-t prediction interval at a chosen confidence level, and one click
 conformally calibrates the interval bounds. A shared region of interest and a
 synchronized camera apply to every 3D view.
 
-![Module 2 — Uncertainty Model Prediction](docs/module2_uncertainty_prediction.png)
+![Module 2 — Uncertainty Model Prediction](docs/02_uncertainty_prediction.png)
 *Module 2: parameter input and prediction history (left); per-run predicted
 field with aleatoric / epistemic uncertainty (middle); per-run confidence-level
 selector with interval width, lower, and upper bounds before or after conformal
@@ -61,7 +61,7 @@ low data/model uncertainty. Each recommendation can be previewed in place or
 sent back to Module 2 as a new run; surrogate-gradient sensitivity curves for
 the current ROI render at the bottom of the page.
 
-![Module 3 — Parameter-Space Exploration](docs/module3_paraspace_exploration.png)
+![Module 3 — Parameter-Space Exploration](docs/03_paraspace_exploration.png)
 *Module 3: context field, ROI, and optimization target (left); predicted field
 with Student-t and conformally calibrated interval bounds, ROI box overlaid
 (middle); ranked parameter recommendations with per-candidate uncertainty and
