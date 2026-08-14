@@ -1,8 +1,12 @@
-# CESET — Conformalized Evidential Surrogate Exploration Tool
+# CESET: An Interactive Visual Tool for Uncertainty-Aware Surrogate Exploration
 
-An interactive web tool for **uncertainty-aware exploration of simulation ensembles
-with neural surrogates**. CESET wraps an evidential implicit neural representation
-(INR) surrogate of a simulation ensemble and lets you explore the ensemble, predict
+**Yuhan Duan · Xin Zhao · Han-Wei Shen**
+Department of Computer Science and Engineering, The Ohio State University
+
+CESET (Conformalized Evidential Surrogate Exploration Tool) is an interactive web
+tool for **uncertainty-aware exploration of simulation ensembles with neural
+surrogates**. It wraps an evidential implicit neural representation (INR)
+surrogate of a simulation ensemble and lets you explore the ensemble, predict
 new fields with aleatoric/epistemic uncertainty and conformally calibrated
 prediction intervals, and search the parameter space for settings that match a
 region-of-interest target.
