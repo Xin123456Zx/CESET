@@ -1,7 +1,9 @@
-# CESET: An Interactive Visual Tool for Uncertainty-Aware Surrogate Exploration
+# CESET: An Interactive Tool for Uncertainty-Aware Surrogate Exploration
 
 **Yuhan Duan · Xin Zhao · Han-Wei Shen**
 Department of Computer Science and Engineering, The Ohio State University
+
+**[Project page](https://xin123456zx.github.io/CESET/)** · [Setup guide](#installation) · [Surrogate paper (arXiv)](https://arxiv.org/abs/2504.02919)
 
 CESET (Conformalized Evidential Surrogate Exploration Tool) is an interactive web
 tool for **uncertainty-aware exploration of simulation ensembles with neural

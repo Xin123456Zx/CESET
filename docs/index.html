@@ -1,0 +1,673 @@
+<title>CESET</title>
+<meta name="description" content="CESET: An Interactive Tool for Uncertainty-Aware Surrogate Exploration — ensemble analysis, uncertainty-aware surrogate prediction, and preference-guided parameter exploration in one visual workflow.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+  /* ---------- tokens: complete light palette on bare :root ---------- */
+  :root {
+    --ground:        #f6f6fb;
+    --surface:       #ffffff;
+    --surface-sunk:  #f0f0f7;
+    --ink:           #171a2b;
+    --ink-soft:      #3d4159;
+    --muted:         #61658040;
+    --muted-text:    #5f6380;
+    --rule:          #e3e3ef;
+    --rule-strong:   #cfcfe0;
+    --accent:        #6b5fd6;
+    --accent-soft:   #ece9fb;
+    --shadow:        0 1px 2px rgba(23, 26, 43, .05), 0 8px 24px -12px rgba(23, 26, 43, .18);
+
+    --m1: #6f66cf;
+    --m2: #3b7fd6;
+    --m3: #d97a52;
+    --m4: #b5850f;
+
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:       #0d1220;
+      --surface:      #151b2d;
+      --surface-sunk: #101728;
+      --ink:          #e9eaf6;
+      --ink-soft:     #c2c5db;
+      --muted:        #8f93b040;
+      --muted-text:   #9498b6;
+      --rule:         #242c45;
+      --rule-strong:  #35406180;
+      --accent:       #a9a3ec;
+      --accent-soft:  #1e2440;
+      --shadow:       0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -14px rgba(0, 0, 0, .7);
+
+      --m1: #9d95ec;
+      --m2: #6fa6ee;
+      --m3: #f0a077;
+      --m4: #ddb03f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground:       #0d1220;
+    --surface:      #151b2d;
+    --surface-sunk: #101728;
+    --ink:          #e9eaf6;
+    --ink-soft:     #c2c5db;
+    --muted:        #8f93b040;
+    --muted-text:   #9498b6;
+    --rule:         #242c45;
+    --rule-strong:  #35406180;
+    --accent:       #a9a3ec;
+    --accent-soft:  #1e2440;
+    --shadow:       0 1px 2px rgba(0, 0, 0, .4), 0 10px 28px -14px rgba(0, 0, 0, .7);
+
+    --m1: #9d95ec;
+    --m2: #6fa6ee;
+    --m3: #f0a077;
+    --m4: #ddb03f;
+  }
+
+  /* ---------- base ---------- */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+  .prose { max-width: 68ch; }
+  p { margin: 0 0 1.05em; color: var(--ink-soft); }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+  strong { color: var(--ink); font-weight: 600; }
+  code { font-family: var(--mono); font-size: .88em; }
+
+  /* ---------- hero ---------- */
+  header.hero {
+    text-align: center;
+    padding: clamp(48px, 8vw, 92px) 0 8px;
+    border-bottom: 1px solid var(--rule);
+    background:
+      radial-gradient(120% 90% at 50% -30%, var(--accent-soft) 0%, transparent 62%),
+      var(--ground);
+  }
+  .eyebrow {
+    font-family: var(--sans);
+    font-size: 12px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-family: var(--sans);
+    font-size: clamp(30px, 5.2vw, 54px);
+    line-height: 1.08;
+    letter-spacing: -.025em;
+    font-weight: 800;
+    margin: 0 auto 6px;
+    max-width: 26ch;
+    text-wrap: balance;
+  }
+  h1 .name { color: var(--accent); }
+  .authors {
+    font-family: var(--sans);
+    font-size: clamp(15px, 1.7vw, 18px);
+    font-weight: 600;
+    margin: 22px 0 4px;
+    display: flex; flex-wrap: wrap; gap: 4px 22px; justify-content: center;
+  }
+  .affil, .venue {
+    font-family: var(--sans);
+    font-size: 14.5px;
+    color: var(--muted-text);
+    margin: 2px 0;
+  }
+  .venue { margin-top: 12px; }
+  .venue b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- link buttons ---------- */
+  .links {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+    margin: 30px 0 44px; padding: 0; list-style: none;
+  }
+  .links a, .links span {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--sans); font-size: 14.5px; font-weight: 600;
+    padding: 9px 20px; border-radius: 999px;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: transform .12s ease, background-color .12s ease, border-color .12s ease;
+  }
+  .links a {
+    background: var(--ink); color: var(--ground);
+  }
+  .links a:hover { transform: translateY(-1px); background: var(--accent); color: #fff; }
+  .links span {
+    background: transparent; color: var(--muted-text);
+    border-color: var(--rule-strong);
+    cursor: default;
+  }
+  .links .ico { width: 16px; height: 16px; flex: none; }
+
+  /* ---------- sections ---------- */
+  section { padding: clamp(46px, 6vw, 78px) 0; border-bottom: 1px solid var(--rule); }
+  section:last-of-type { border-bottom: 0; }
+  h2 {
+    font-family: var(--sans);
+    font-size: clamp(22px, 2.8vw, 30px);
+    line-height: 1.18; letter-spacing: -.015em; font-weight: 750;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; }
+  .chip {
+    font-family: var(--sans); font-size: 13px; font-weight: 800;
+    letter-spacing: .04em;
+    color: #fff; background: var(--accent);
+    padding: 4px 10px; border-radius: 8px; flex: none;
+    transform: translateY(-2px);
+  }
+  .m1 .chip { background: var(--m1); } .m1 h2 { color: var(--m1); }
+  .m2 .chip { background: var(--m2); } .m2 h2 { color: var(--m2); }
+  .m3 .chip { background: var(--m3); } .m3 h2 { color: var(--m3); }
+  .m4 .chip { background: var(--m4); } .m4 h2 { color: var(--m4); }
+  .purpose {
+    font-family: var(--sans); font-size: 15.5px; line-height: 1.55;
+    color: var(--ink);
+    background: var(--surface); border: 1px solid var(--rule);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px; padding: 14px 18px; margin: 0 0 24px;
+    max-width: 78ch;
+  }
+  .m1 .purpose { border-left-color: var(--m1); }
+  .m2 .purpose { border-left-color: var(--m2); }
+  .m3 .purpose { border-left-color: var(--m3); }
+  .m4 .purpose { border-left-color: var(--m4); }
+  .purpose b { font-weight: 700; }
+
+  /* ---------- feature tags ---------- */
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 0; padding: 0; list-style: none; }
+  .tags li {
+    font-family: var(--sans); font-size: 13px; font-weight: 600;
+    color: var(--ink-soft);
+    background: var(--surface); border: 1px solid var(--rule);
+    padding: 6px 13px; border-radius: 999px;
+  }
+
+  /* ---------- figures ---------- */
+  figure { margin: 30px 0 0; }
+  figure img {
+    display: block; width: 100%; height: auto;
+    border: 1px solid var(--rule-strong); border-radius: 12px;
+    box-shadow: var(--shadow);
+    background: var(--surface);
+  }
+  figcaption {
+    font-family: var(--sans); font-size: 13.5px; line-height: 1.5;
+    color: var(--muted-text);
+    margin-top: 12px; max-width: 88ch;
+  }
+  figcaption b { color: var(--ink-soft); font-weight: 700; }
+  .diagram {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 22px 18px;
+    overflow-x: auto;
+  }
+  .diagram svg { display: block; width: 100%; min-width: 620px; max-width: 100%; height: auto; color: var(--ink); }
+  /* diagram accents follow the theme tokens instead of fixed hues */
+  .diagram .a-stroke  { stroke: var(--accent); }
+  .diagram .a-fill    { fill: var(--accent); }
+  .diagram .m1-fill   { fill: var(--m1); }
+  .diagram .m2-fill   { fill: var(--m2); }
+  .diagram .m3-fill   { fill: var(--m3); }
+  .diagram .m3-stroke { stroke: var(--m3); }
+  .diagram .m4-fill   { fill: var(--m4); }
+  .diagram .m4-stroke { stroke: var(--m4); }
+
+  /* ---------- challenge cards ---------- */
+  .cards {
+    display: grid; gap: 14px; margin: 26px 0 0; padding: 0; list-style: none;
+    grid-template-columns: repeat(auto-fit, minmax(238px, 1fr));
+  }
+  .cards li {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 12px; padding: 18px 18px 16px;
+    border-top: 3px solid var(--accent);
+  }
+  .cards li:nth-child(1) { border-top-color: var(--m1); }
+  .cards li:nth-child(2) { border-top-color: var(--m2); }
+  .cards li:nth-child(3) { border-top-color: var(--m3); }
+  .cards li:nth-child(4) { border-top-color: var(--m4); }
+  .cards h3 {
+    font-family: var(--sans); font-size: 15.5px; font-weight: 700; line-height: 1.3;
+    margin: 0 0 8px;
+  }
+  .cards li:nth-child(1) h3 { color: var(--m1); }
+  .cards li:nth-child(2) h3 { color: var(--m2); }
+  .cards li:nth-child(3) h3 { color: var(--m3); }
+  .cards li:nth-child(4) h3 { color: var(--m4); }
+  .cards p { font-family: var(--sans); font-size: 13.5px; line-height: 1.5; margin: 0; color: var(--muted-text); }
+
+  /* ---------- code ---------- */
+  pre {
+    font-family: var(--mono); font-size: 13.5px; line-height: 1.65;
+    background: var(--surface-sunk); color: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: 10px; padding: 16px 18px;
+    overflow-x: auto; margin: 0 0 16px;
+  }
+  pre .c { color: var(--muted-text); }
+  .bib-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+  .copy {
+    font-family: var(--sans); font-size: 13px; font-weight: 600;
+    background: var(--surface); color: var(--ink-soft);
+    border: 1px solid var(--rule-strong); border-radius: 8px;
+    padding: 6px 14px; cursor: pointer;
+  }
+  .copy:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---------- lists ---------- */
+  ul.plain { margin: 0 0 1.05em; padding-left: 1.15em; color: var(--ink-soft); }
+  ul.plain li { margin-bottom: .35em; }
+
+  footer {
+    padding: 40px 0 56px; text-align: center;
+    font-family: var(--sans); font-size: 13.5px; color: var(--muted-text);
+    border-top: 1px solid var(--rule);
+  }
+  footer a { color: var(--muted-text); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Uncertainty-Aware Scientific Visualization</div>
+    <h1><span class="name">CESET</span>: An Interactive Tool for Uncertainty-Aware Surrogate Exploration</h1>
+    <div class="authors">
+      <span>Yuhan Duan</span><span>Xin Zhao</span><span>Han-Wei Shen</span>
+    </div>
+    <div class="affil">Department of Computer Science and Engineering, The Ohio State University</div>
+    <div class="venue">Demo submission · <b>IEEE VIS 2026 Workshop on Uncertainty Visualization</b></div>
+
+    <ul class="links">
+      <li><a href="https://github.com/Xin123456Zx/CESET">
+        <svg class="ico" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        Code
+      </a></li>
+      <li><a href="https://github.com/Xin123456Zx/CESET#installation">
+        <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.8v8.4M4.8 7l3.2 3.2L11.2 7M2.2 12.6v1.6h11.6v-1.6"/></svg>
+        Setup Guide
+      </a></li>
+      <li><a href="https://arxiv.org/abs/2504.02919">
+        <svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.2 1.6H4a1.2 1.2 0 0 0-1.2 1.2v10.4A1.2 1.2 0 0 0 4 14.4h8a1.2 1.2 0 0 0 1.2-1.2V5.6L9.2 1.6Z"/><path d="M9.2 1.6v4h4M5.6 8.8h4.8M5.6 11.2h4.8"/></svg>
+        Surrogate Paper (arXiv)
+      </a></li>
+      <li><span>Demo Video · coming soon</span></li>
+      <li><span>Short Paper · coming soon</span></li>
+    </ul>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ TEASER ============ -->
+  <section>
+    <div class="wrap">
+      <figure style="margin-top:0">
+        <div class="diagram">
+          <svg viewBox="0 0 940 330" role="img"
+               aria-label="A closed-loop workflow: ensemble data understanding informs surrogate prediction; the Optimize button hands a prediction run to parameter-space exploration as its context field, and Send to Module 2 hands a recommended candidate back for forward verification. A context-aware AI assistant reads the live state of all three modules.">
+            <defs>
+              <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0L10 5L0 10z" fill="currentColor"/>
+              </marker>
+              <marker id="ar-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0L10 5L0 10z" class="a-fill"/>
+              </marker>
+            </defs>
+
+            <!-- module boxes -->
+            <g font-family="ui-sans-serif, system-ui, sans-serif">
+              <rect x="20" y="60" width="240" height="96" rx="12" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".55"/>
+              <text x="40" y="88" font-size="12" font-weight="700" class="m1-fill" letter-spacing="1">01</text>
+              <text x="40" y="112" font-size="15" font-weight="700" fill="currentColor">Ensemble Data</text>
+              <text x="40" y="132" font-size="15" font-weight="700" fill="currentColor">Understanding</text>
+
+              <rect x="350" y="60" width="240" height="96" rx="12" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".55"/>
+              <text x="370" y="88" font-size="12" font-weight="700" class="m2-fill" letter-spacing="1">02</text>
+              <text x="370" y="112" font-size="15" font-weight="700" fill="currentColor">Uncertainty-Aware</text>
+              <text x="370" y="132" font-size="15" font-weight="700" fill="currentColor">Surrogate Prediction</text>
+
+              <rect x="680" y="60" width="240" height="96" rx="12" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".55"/>
+              <text x="700" y="88" font-size="12" font-weight="700" class="m3-fill" letter-spacing="1">03</text>
+              <text x="700" y="112" font-size="15" font-weight="700" fill="currentColor">Preference-Guided</text>
+              <text x="700" y="132" font-size="15" font-weight="700" fill="currentColor">Parameter Exploration</text>
+
+              <!-- 01 -> 02 -->
+              <line x1="264" y1="108" x2="342" y2="108" stroke="currentColor" stroke-width="1.5" opacity=".5" marker-end="url(#ar)"/>
+              <text x="303" y="98" font-size="11" fill="currentColor" opacity=".72" text-anchor="middle">informs</text>
+              <text x="303" y="128" font-size="11" fill="currentColor" opacity=".72" text-anchor="middle">which query</text>
+
+              <!-- 02 <-> 03 : the two real handoffs (labels sit in the clear bands above/below the boxes) -->
+              <line x1="594" y1="94" x2="672" y2="94" class="a-stroke" stroke-width="1.8" marker-end="url(#ar-a)"/>
+              <text x="633" y="48" font-size="11.5" font-weight="600" class="a-fill" text-anchor="middle">“Optimize”: run → context field</text>
+              <line x1="633" y1="54" x2="633" y2="86" class="a-stroke" stroke-width="1" stroke-dasharray="2 3" opacity=".6"/>
+
+              <line x1="672" y1="126" x2="594" y2="126" class="a-stroke" stroke-width="1.8" marker-end="url(#ar-a)"/>
+              <text x="633" y="182" font-size="11.5" font-weight="600" class="a-fill" text-anchor="middle">“Send to Module 2”: candidate → forward verify</text>
+              <line x1="633" y1="134" x2="633" y2="168" class="a-stroke" stroke-width="1" stroke-dasharray="2 3" opacity=".6"/>
+
+              <!-- dotted links down to assistant -->
+              <line x1="140" y1="160" x2="140" y2="238" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3 4" opacity=".45"/>
+              <line x1="470" y1="160" x2="470" y2="238" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3 4" opacity=".45"/>
+              <line x1="800" y1="160" x2="800" y2="238" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3 4" opacity=".45"/>
+              <text x="486" y="205" font-size="11" fill="currentColor" opacity=".7">reads live view state</text>
+
+              <!-- assistant bar -->
+              <rect x="20" y="238" width="900" height="66" rx="12" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".55"/>
+              <text x="40" y="266" font-size="12" font-weight="700" class="m4-fill" letter-spacing="1">04</text>
+              <text x="40" y="288" font-size="15" font-weight="700" fill="currentColor">Context-Aware AI Assistant</text>
+              <text x="330" y="288" font-size="12.5" fill="currentColor" opacity=".72">retrieval-augmented answers grounded in the current session + a curated knowledge base</text>
+
+              <!-- scale caption inside -->
+              <text x="20" y="30" font-size="12.5" font-weight="700" fill="currentColor" opacity=".8">A closed loop: from understanding to action</text>
+            </g>
+          </svg>
+        </div>
+        <figcaption><b>Overview.</b> CESET links three modules into one workflow. Exploring the existing ensemble tells scientists which parameter settings are worth asking about; the surrogate answers those queries with uncertainty in seconds; and the inverse search turns a desired spatial structure back into candidate parameters. The two colored arrows are real one-click handoffs in the interface, and an AI assistant sits under all three, answering questions against whatever the user is currently looking at.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ ABSTRACT ============ -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><h2>Overview</h2></div>
+      <div class="prose">
+        <p>Consider cosmologists studying how matter clusters in the universe. They have <strong>380 Nyx simulations</strong> in hand, and every new one costs hours on a supercomputer. Answering even simple questions — is this run unusual? what would a slightly different matter density produce? which parameters give me this filament structure? — currently means jumping between ensemble analysis scripts, surrogate model code, volumetric processing, and disconnected visualization tools.</p>
+        <p><strong>CESET</strong> brings those steps into a single interactive visual workflow. It couples ensemble exploration with an uncertainty-aware neural surrogate, so a new parameter configuration can be evaluated in seconds instead of hours — complete with disentangled aleatoric and epistemic uncertainty and prediction intervals that carry a coverage guarantee. It then closes the loop with a gradient-based inverse search that recommends plausible parameters for a target spatial structure, ranked by the scientist's own uncertainty preferences, and a context-aware AI assistant that explains what is on screen.</p>
+        <p>The tool is built for <strong>3D ensemble simulation datasets</strong> in general; this demonstration uses the Nyx cosmology ensemble as its running example. CESET is open source — see <a href="https://github.com/Xin123456Zx/CESET">the repository</a> for the code, the pretrained surrogate, and the setup guide.</p>
+      </div>
+
+      <ul class="cards">
+        <li>
+          <h3>Ensemble Data Understanding</h3>
+          <p>Large-scale ensembles make it difficult to jointly characterize distributions, identify outliers, and assess parameter sensitivity.</p>
+        </li>
+        <li>
+          <h3>Uncertainty-Aware Surrogate Access</h3>
+          <p>Surrogates predict outputs and quantify uncertainty quickly, but using them still requires model code, volumetric processing, and separate visualization tools.</p>
+        </li>
+        <li>
+          <h3>Preference-Guided Parameter Exploration</h3>
+          <p>Gradient-based optimization can infer plausible parameters from target outputs and uncertainty preferences, but inverse exploration remains hard without interactive support.</p>
+        </li>
+        <li>
+          <h3>Context-Aware AI Assistance</h3>
+          <p>Domain scientists may be unfamiliar with machine-learning surrogates, and uncertainty concepts are often ambiguous; they need explanations tied to the interface in front of them.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 1 ============ -->
+  <section class="m1">
+    <div class="wrap">
+      <div class="sec-head"><span class="chip">01</span><h2>Ensemble Data Understanding</h2></div>
+      <p class="purpose"><b>Purpose.</b> Provide a unified interactive visual workflow for comprehensive exploration of the existing ensemble.</p>
+      <div class="prose">
+        <p>Every member of the ensemble becomes one point in the landscape scatterplot: the horizontal axis is the mean of its log-density field, the vertical axis the standard deviation, and color separates the training, calibration, and testing splits used to build and evaluate the surrogate. Statistical and structural outliers are ring-marked, so unusual runs surface immediately.</p>
+        <p>Selections propagate across every view. Narrow the ensemble with parameter filters, jump to a member by id or parameter value, or brush an axis of the parallel-coordinates view — the landscape follows. Clicking a member shows its simulation parameters, field statistics, and an interactive 3D density field on the right, while the sensitivity panel reports how the field statistics move with each simulation parameter.</p>
+      </div>
+      <ul class="tags">
+        <li>Ensemble distribution overview</li>
+        <li>Statistical analysis</li>
+        <li>Outlier detection</li>
+        <li>Parameter sensitivity analysis</li>
+        <li>Interactive 3D member inspection</li>
+      </ul>
+      <figure>
+        <img src="web/01_data_exploration.jpg" alt="Module 1 interface: a filter and search column on the left, an ensemble landscape scatterplot in the center, a focused member's volume rendering and statistics on the right, with parallel coordinates and parameter sensitivity charts below." loading="lazy">
+        <figcaption><b>Module 1.</b> The ensemble landscape (center) with linked filters and member search (left); the focused member's volume rendering, outlier verdict, and spatial statistics (right); parallel coordinates connecting parameters to statistics and per-parameter sensitivity curves (bottom).</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 2 ============ -->
+  <section class="m2">
+    <div class="wrap">
+      <div class="sec-head"><span class="chip">02</span><h2>Uncertainty-Aware Surrogate Prediction</h2></div>
+      <p class="purpose"><b>Purpose.</b> Provide an interactive visual interface for accessible and interpretable exploration of surrogate predictions and their uncertainty.</p>
+      <div class="prose">
+        <p>The user sets the three Nyx parameters and submits. Within a few seconds, without touching the simulator, the surrogate returns a predicted 3D field together with <strong>aleatoric</strong> uncertainty (variability modeled in the data itself) and <strong>epistemic</strong> uncertainty (what the learned model does not know) — rendered side by side so it is clear <em>where</em> a prediction is uncertain and <em>which kind</em> of uncertainty dominates.</p>
+        <p>A region of interest along the X, Y, and Z axes is shared by every view, and all volume renderings move under one synchronized camera, so the same spatial structures can be compared directly. Choosing a confidence level and clicking <strong>Render</strong> shows the raw prediction interval and its bounds — higher confidence, wider interval — and clicking <strong>Calibrate</strong> replaces them with conformalized bounds, which under the standard exchangeability assumption carry a finite-sample marginal coverage guarantee.</p>
+        <p class="prose" style="font-size:15.5px;font-family:var(--sans);color:var(--muted-text)">The surrogate builds on our previous work on conformalized evidential learning, <a href="https://arxiv.org/abs/2504.02919">ConfEviSurrogate</a>, which predicts simulation outputs with competitive reconstruction accuracy, disentangles aleatoric from epistemic uncertainty, and produces calibrated intervals at user-specified confidence levels.</p>
+      </div>
+      <ul class="tags">
+        <li>Interactive parameter queries</li>
+        <li>Linked prediction, aleatoric &amp; epistemic uncertainty</li>
+        <li>User-controlled confidence</li>
+        <li>Raw vs. calibrated intervals</li>
+        <li>Shared ROI and synchronized cameras</li>
+      </ul>
+      <figure>
+        <img src="web/02_uncertainty_prediction.jpg" alt="Module 2 interface: parameter sliders and a prediction history table on the left; three rows of predicted field, aleatoric and epistemic uncertainty volumes in the center; confidence-level selectors with interval width, lower and upper bound volumes on the right." loading="lazy">
+        <figcaption><b>Module 2.</b> Parameter input and prediction history (left); one row per run showing the predicted field with its aleatoric and epistemic uncertainty (center); per-run confidence-level selector with interval width and the lower and upper bounds, before or after conformal calibration (right).</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 3 ============ -->
+  <section class="m3">
+    <div class="wrap">
+      <div class="sec-head"><span class="chip">03</span><h2>Preference-Guided Parameter Exploration</h2></div>
+      <p class="purpose"><b>Purpose.</b> Recommend plausible simulation parameters that match scientists' target outputs and uncertainty preferences.</p>
+      <div class="prose">
+        <p>This module answers the inverse question: given a desired spatial structure, which parameter settings are likely to produce it? Clicking <strong>Optimize</strong> on a prediction in Module 2 sends it here as the context field. The user boxes a region of interest, picks a reference field as the spatial target, states a preference for high or low aleatoric and epistemic uncertainty, and clicks <strong>Recommend Parameters</strong>.</p>
+        <p>The system searches the parameter space by differentiating the surrogate with respect to the simulation parameters, and returns several candidate configurations with their matching errors and uncertainty summaries. The spatial matching objective decides how well a candidate reproduces the target feature; the uncertainty preferences break ties among candidates of similar matching quality. Any candidate can be previewed in place, or sent back to Module 2 for forward visual verification.</p>
+        <p>These recommendations do not replace expensive simulations — they narrow the parameter space so scientists can prioritize promising configurations for subsequent simulator validation. A neural-network-based sensitivity analysis at the bottom of the view shows which parameters most strongly influence the selected region.</p>
+      </div>
+
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 940 250" role="img"
+               aria-label="Inverse search pipeline: a target simulation output and the scientist's uncertainty preferences both feed the uncertainty-aware surrogate, which is differentiated with respect to the simulation parameters to produce ranked candidate parameters, which are then forward-predicted and visually verified back in Module 2.">
+            <defs>
+              <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0L10 5L0 10z" fill="currentColor"/>
+              </marker>
+              <marker id="ar2-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0L10 5L0 10z" class="m3-fill"/>
+              </marker>
+            </defs>
+            <g font-family="ui-sans-serif, system-ui, sans-serif">
+              <!-- inputs -->
+              <rect x="14" y="26" width="196" height="62" rx="10" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+              <text x="34" y="52" font-size="13.5" font-weight="700" fill="currentColor">Target simulation</text>
+              <text x="34" y="70" font-size="13.5" font-weight="700" fill="currentColor">output (in ROI)</text>
+
+              <rect x="14" y="150" width="196" height="62" rx="10" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+              <text x="34" y="176" font-size="13.5" font-weight="700" fill="currentColor">Scientists'</text>
+              <text x="34" y="194" font-size="13.5" font-weight="700" fill="currentColor">uncertainty preferences</text>
+
+              <!-- surrogate -->
+              <rect x="316" y="58" width="230" height="122" rx="12" fill="none" class="m3-stroke" stroke-width="1.8"/>
+              <text x="431" y="92" font-size="14.5" font-weight="700" fill="currentColor" text-anchor="middle">Uncertainty-aware</text>
+              <text x="431" y="111" font-size="14.5" font-weight="700" fill="currentColor" text-anchor="middle">surrogate</text>
+              <rect x="336" y="124" width="190" height="38" rx="8" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".45"/>
+              <text x="431" y="148" font-size="12.5" font-weight="600" class="m3-fill" text-anchor="middle">gradient-based inverse search</text>
+
+              <!-- arrows in -->
+              <path d="M214 57 L250 57 L250 100 L308 100" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".6" marker-end="url(#ar2)"/>
+              <text x="252" y="46" font-size="11" fill="currentColor" opacity=".72">reference field</text>
+              <path d="M214 181 L250 181 L250 140 L308 140" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".6" marker-end="url(#ar2)"/>
+              <text x="252" y="206" font-size="11" fill="currentColor" opacity=".72">max / min each</text>
+
+              <!-- out -->
+              <line x1="550" y1="100" x2="686" y2="100" class="m3-stroke" stroke-width="1.7" marker-end="url(#ar2-a)"/>
+              <text x="618" y="90" font-size="11" font-weight="600" class="m3-fill" text-anchor="middle">∇ w.r.t. (OmM, OmB, h)</text>
+              <text x="618" y="118" font-size="11" class="m3-fill" text-anchor="middle">top-k ranked</text>
+
+              <rect x="694" y="66" width="232" height="68" rx="10" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+              <text x="714" y="94" font-size="13.5" font-weight="700" fill="currentColor">Candidate simulation</text>
+              <text x="714" y="112" font-size="13.5" font-weight="700" fill="currentColor">parameters</text>
+
+              <path d="M810 138 L810 162" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".6" marker-end="url(#ar2)"/>
+              <rect x="694" y="168" width="232" height="62" rx="10" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+              <text x="714" y="194" font-size="13.5" font-weight="700" fill="currentColor">Forward prediction &amp;</text>
+              <text x="714" y="212" font-size="13.5" font-weight="700" fill="currentColor">visual verification</text>
+              <text x="818" y="155" font-size="11" fill="currentColor" opacity=".72" text-anchor="start">back to Module 2</text>
+            </g>
+          </svg>
+        </div>
+        <figcaption><b>Inverse search.</b> The target structure and the uncertainty preferences enter the same surrogate: gradients with respect to the three simulation parameters drive the search, the matching objective ranks candidates, and the preferences break ties. Every candidate leaves the loop through a forward prediction that the scientist can inspect.</figcaption>
+      </figure>
+
+      <figure>
+        <img src="web/03_paraspace_exploration.jpg" alt="Module 3 interface: context field parameters, region of interest, and optimization target on the left; predicted field with Student-t and conformally calibrated interval bounds in the center; ranked parameter recommendations with uncertainty summaries on the right." loading="lazy">
+        <figcaption><b>Module 3.</b> Context field, region of interest, and optimization target (left); the predicted field with its Student-t and conformally calibrated interval bounds, ROI box overlaid (center); ranked recommendations with per-candidate matching error, uncertainty summaries, preview, and one-click handoff to Module 2 (right).</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ MODULE 4 ============ -->
+  <section class="m4">
+    <div class="wrap">
+      <div class="sec-head"><span class="chip">04</span><h2>Context-Aware AI Assistance</h2></div>
+      <p class="purpose"><b>Purpose.</b> Provide context-aware explanations and workflow guidance grounded in the current interface state and a curated knowledge base.</p>
+      <div class="prose">
+        <p>Uncertainty-aware surrogate analysis involves concepts and workflows that may be unfamiliar to domain scientists, so an assistant is available throughout all three modules. Using retrieval-augmented generation, it combines the user's question and the current session state with knowledge of the CESET workflow and passages retrieved from a curated knowledge base.</p>
+        <p>Ask, for example, <em>"How does Recommend Parameters work in the Para-space view?"</em> — the assistant answers using the live workflow context and cites its supporting references, so the explanation stays traceable and verifiable rather than free-floating.</p>
+      </div>
+      <figure>
+        <div class="diagram">
+          <svg viewBox="0 0 880 236" role="img"
+               aria-label="The assistant combines three inputs — the user's question, the current interface state, and a curated knowledge base — through retrieval-augmented generation to produce concept explanations and workflow guidance with citations.">
+            <defs>
+              <marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0L10 5L0 10z" fill="currentColor"/>
+              </marker>
+              <marker id="ar3-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0L10 5L0 10z" class="m4-fill"/>
+              </marker>
+            </defs>
+            <g font-family="ui-sans-serif, system-ui, sans-serif">
+              <rect x="14" y="16" width="192" height="52" rx="10" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+              <text x="110" y="47" font-size="13.5" font-weight="700" fill="currentColor" text-anchor="middle">User question</text>
+
+              <rect x="14" y="92" width="192" height="52" rx="10" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+              <text x="110" y="115" font-size="13.5" font-weight="700" fill="currentColor" text-anchor="middle">Current interface</text>
+              <text x="110" y="132" font-size="13.5" font-weight="700" fill="currentColor" text-anchor="middle">state</text>
+
+              <rect x="14" y="168" width="192" height="52" rx="10" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+              <text x="110" y="199" font-size="13.5" font-weight="700" fill="currentColor" text-anchor="middle">Curated knowledge base</text>
+
+              <path d="M210 42 L250 42 L250 100 L296 100" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".6" marker-end="url(#ar3)"/>
+              <path d="M210 118 L296 118" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".6" marker-end="url(#ar3)"/>
+              <path d="M210 194 L250 194 L250 136 L296 136" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".6" marker-end="url(#ar3)"/>
+              <text x="253" y="176" font-size="11" fill="currentColor" opacity=".72">retrieved passages</text>
+              <text x="253" y="80" font-size="11" fill="currentColor" opacity=".72">params, ROI, results</text>
+
+              <rect x="304" y="60" width="248" height="116" rx="12" fill="none" class="m4-stroke" stroke-width="1.8"/>
+              <text x="428" y="98" font-size="15" font-weight="700" fill="currentColor" text-anchor="middle">AI assistant</text>
+              <rect x="326" y="114" width="204" height="38" rx="8" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".45"/>
+              <text x="428" y="138" font-size="12.5" font-weight="600" class="m4-fill" text-anchor="middle">retrieval-augmented Q&amp;A</text>
+
+              <line x1="556" y1="118" x2="644" y2="118" class="m4-stroke" stroke-width="1.7" marker-end="url(#ar3-a)"/>
+              <text x="600" y="108" font-size="11" font-weight="600" class="m4-fill" text-anchor="middle">with citations</text>
+
+              <rect x="652" y="60" width="212" height="52" rx="10" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+              <text x="758" y="91" font-size="13.5" font-weight="700" fill="currentColor" text-anchor="middle">Concept explanations</text>
+              <rect x="652" y="124" width="212" height="52" rx="10" fill="none" stroke="currentColor" stroke-width="1.4" opacity=".55"/>
+              <text x="758" y="155" font-size="13.5" font-weight="700" fill="currentColor" text-anchor="middle">Workflow guidance</text>
+            </g>
+          </svg>
+        </div>
+        <figcaption><b>Grounded answers.</b> The assistant never answers from the question alone: the live interface state and passages retrieved from the knowledge base enter the same prompt, and the answer carries its citations back out.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ GETTING STARTED ============ -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><h2>Get CESET running</h2></div>
+      <div class="prose">
+        <p>The repository ships the pretrained Nyx evidential surrogate and the precomputed ensemble statistics, so the tool runs out of the box on a machine with an NVIDIA GPU. Full instructions, optional data, and the guide for adapting CESET to another 3D ensemble dataset are in the <a href="https://github.com/Xin123456Zx/CESET#installation">repository README</a>.</p>
+      </div>
+<pre><span class="c"># clone</span>
+git clone https://github.com/Xin123456Zx/CESET.git &amp;&amp; cd CESET
+
+<span class="c"># backend (CUDA build of PyTorch, then the rest)</span>
+python -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install torch==2.2.2 --index-url https://download.pytorch.org/whl/cu121
+pip install -r backend/requirements.txt
+
+<span class="c"># frontend</span>
+cd frontend &amp;&amp; npm install &amp;&amp; cd ..
+
+<span class="c"># run both, then open http://localhost:5173</span>
+./start_demo.sh</pre>
+      <div class="prose">
+        <p style="font-family:var(--sans);font-size:15px;color:var(--muted-text)">CESET is dataset-agnostic. Adapting it to another 3D ensemble means training an evidential INR with the shipped architecture, registering the dataset's parameter ranges in the backend and its parameter panel in the frontend, precomputing the ensemble statistics with the included scripts, and optionally precomputing conformal calibration fields.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CITATION ============ -->
+  <section>
+    <div class="wrap">
+      <div class="sec-head"><h2>Citation</h2></div>
+      <div class="prose">
+        <p>The uncertainty-aware surrogate behind CESET is described in our previous work; please cite it if you build on the model. A citation entry for the CESET demo will be added upon publication.</p>
+      </div>
+      <div class="bib-head">
+        <span style="font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-text)">BibTeX</span>
+        <button class="copy" id="copyBtn" type="button">Copy</button>
+      </div>
+<pre id="bib">@article{duan2025confevisurrogate,
+  title   = {ConfEviSurrogate: A Conformalized Evidential Surrogate Model
+             for Uncertainty Quantification},
+  author  = {Duan, Yuhan and Zhao, Xin and Shi, Neng and Shen, Han-Wei},
+  journal = {arXiv preprint arXiv:2504.02919},
+  year    = {2025}
+}</pre>
+      <div class="prose">
+        <p style="font-family:var(--sans);font-size:14px;color:var(--muted-text)">The Nyx ensemble used throughout this demonstration was generated with the Nyx cosmology code: Almgren, Bell, Lijewski, Lukić, and Van Andel, “Nyx: A massively parallel AMR code for computational cosmology,” <em>The Astrophysical Journal</em> 765(1), 2013.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p style="margin:0">Yuhan Duan · Xin Zhao · Han-Wei Shen — The Ohio State University<br>
+    Code released under the MIT license · <a href="https://github.com/Xin123456Zx/CESET">github.com/Xin123456Zx/CESET</a></p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('copyBtn').addEventListener('click', function () {
+    var text = document.getElementById('bib').innerText;
+    var btn = this;
+    function done() { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else { fallback(); }
+    function fallback() {
+      var r = document.createRange();
+      r.selectNodeContents(document.getElementById('bib'));
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      try { document.execCommand('copy'); done(); } catch (e) { btn.textContent = 'Select & copy'; }
+    }
+  });
+</script>
