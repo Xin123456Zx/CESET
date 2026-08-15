@@ -3,7 +3,7 @@
 **Yuhan Duan · Xin Zhao · Han-Wei Shen**
 Department of Computer Science and Engineering, The Ohio State University
 
-**[Project page](https://xin123456zx.github.io/CESET/)** · [Setup guide](#installation) · [Surrogate paper (arXiv)](https://arxiv.org/abs/2504.02919)
+**[Project page](https://xin123456zx.github.io/CESET/)** · [Setup guide](#installation) · [Surrogate paper (arXiv)](https://arxiv.org/abs/2504.02919) · [AI assistant transcript](docs/ai_assistant_transcript.md)
 
 CESET (Conformalized Evidential Surrogate Exploration Tool) is an interactive web
 tool for **uncertainty-aware exploration of simulation ensembles with neural

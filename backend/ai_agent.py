@@ -214,17 +214,33 @@ def _format_context(snippets, app_state):
     return "\n\n".join(parts)
 
 
+# Reasoning models spend part of this budget on internal "thinking" blocks before they emit
+# any answer text, so it has to cover both. At 3000 a complex state-aware question could burn
+# the whole budget while thinking and come back with no text block at all (an empty chat bubble).
+MAX_ANSWER_TOKENS = 8000
+
+
+def _no_text_message(stop_reason):
+    if stop_reason == "max_tokens":
+        return ("(The model ran out of response budget before producing an answer. Try a more "
+                "specific question, or raise MAX_ANSWER_TOKENS in backend/ai_agent.py.)")
+    return f"(The model returned no answer text; stop_reason={stop_reason}.)"
+
+
 def _call_anthropic(api_key, model, system, messages):
     r = requests.post(
         "https://api.anthropic.com/v1/messages",
         headers={"x-api-key": api_key, "anthropic-version": "2023-06-01",
                  "content-type": "application/json"},
-        json={"model": model, "max_tokens": 3000, "system": system,
+        json={"model": model, "max_tokens": MAX_ANSWER_TOKENS, "system": system,
               "messages": messages},
-        timeout=120)
+        timeout=180)
     r.raise_for_status()
     data = r.json()
-    return "".join(b.get("text", "") for b in data.get("content", []))
+    # Only "text" blocks are the answer; "thinking" blocks are internal and must not be shown.
+    text = "".join(b.get("text", "") for b in data.get("content", [])
+                   if b.get("type") == "text")
+    return text if text.strip() else _no_text_message(data.get("stop_reason"))
 
 
 def _call_openai(api_key, model, system, messages):
@@ -233,10 +249,12 @@ def _call_openai(api_key, model, system, messages):
         headers={"Authorization": f"Bearer {api_key}"},
         json={"model": model,
               "messages": [{"role": "system", "content": system}] + messages,
-              "max_tokens": 3000},
-        timeout=120)
+              "max_tokens": MAX_ANSWER_TOKENS},
+        timeout=180)
     r.raise_for_status()
-    return r.json()["choices"][0]["message"]["content"]
+    choice = r.json()["choices"][0]
+    text = choice.get("message", {}).get("content") or ""
+    return text if text.strip() else _no_text_message(choice.get("finish_reason"))
 
 
 # ---------------------------------------------------------------------------
