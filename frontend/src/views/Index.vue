@@ -16,7 +16,8 @@
         </div>
 
         <!-- Three-column layout -->
-        <div class="grid grid-cols-[minmax(400px,2fr)_2fr_3fr] gap-2 flex-1 min-h-0">
+        <!-- minmax(0,…) so a panel's wide content scrolls inside it instead of stretching the page -->
+        <div class="grid grid-cols-[minmax(360px,1.5fr)_minmax(0,2fr)_minmax(0,2.6fr)] gap-2 flex-1 min-h-0">
           <ParamasContextProvider :value="value">
             <!-- Left: parameter input, ROI, and prediction history -->
             <ParameterView />

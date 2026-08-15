@@ -1,9 +1,9 @@
 <template>
-  <div class="w-[200px] h-[200px] relative" @click="activate">
-    <div ref="vtkContainer" style="width: 200px; height: 200px;" />
+  <div class="relative" :style="{ width, height }" @click="activate">
+    <div ref="vtkContainer" :style="{ width, height }" />
     <!-- Snapshot mode: click to enter 3D interaction (see useVtkView for notes on the WebGL context limit) -->
     <img v-if="snapshot && !live" :src="snapshot" @click="activate"
-         class="absolute left-0 top-0 w-[200px] h-[200px] cursor-pointer z-10"
+         class="absolute left-0 top-0 cursor-pointer z-10" :style="{ width, height }"
          title="Click to enter 3D interaction" />
     <div
     ref="tooltip"

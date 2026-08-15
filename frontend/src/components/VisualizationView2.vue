@@ -5,7 +5,7 @@
       <span class="hint truncate">per run: pick a confidence level, then Render (Student-t) or Calibrate (conformal)</span>
     </div>
 
-    <div class="flex-1 min-h-0 overflow-y-auto px-2 pb-2">
+    <div class="flex-1 min-h-0 overflow-y-auto overflow-x-auto px-2 pb-2">
       <div class="grid grid-cols-[2fr_1fr_1fr_1fr] gap-y-3">
         <!-- Column headers: what each column shows (sticky while the rows scroll) -->
         <div v-for="(itm,index) in titleList" :key="index"
@@ -22,15 +22,15 @@
             </div>
             <!-- The component only loads data in onMounted; bind the URL via :key so it rebuilds exactly once when the URL changes -->
             <div class="place-self-center">
-              <Cube3d1 v-if="item.data" roi-clip sync-camera auto-live :key="'i'+item.data+item.model" width="200px" height="200px" :url1="item.data" :url2="item.model"/>
+              <Cube3d1 v-if="item.data" roi-clip sync-camera auto-live :key="'i'+item.data+item.model" width="150px" height="150px" :url1="item.data" :url2="item.model"/>
               <div class="w-[120px] h-[120px] flex items-center justify-center hint text-center" v-else>choose a level,<br/>then Render</div>
             </div>
             <div class="place-self-center">
-              <Cube3d v-if="item.data" roi-clip sync-camera auto-live :key="'l'+item.data" :url="item.data"/>
+              <Cube3d v-if="item.data" roi-clip sync-camera auto-live :key="'l'+item.data" :size="150" :url="item.data"/>
               <div class="w-[120px] h-[120px]" v-else></div>
             </div>
             <div class="place-self-center">
-              <Cube3d v-if="item.model" roi-clip sync-camera auto-live :key="'u'+item.model" :url="item.model"/>
+              <Cube3d v-if="item.model" roi-clip sync-camera auto-live :key="'u'+item.model" :size="150" :url="item.model"/>
               <div class="w-[120px] h-[120px]" v-else></div>
             </div>
         </template>

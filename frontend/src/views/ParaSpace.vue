@@ -216,8 +216,8 @@
                 <p class="col-title"><span class="name">Aleatoric uncertainty</span><span class="desc">data noise</span></p>
                 <p class="col-title"><span class="name">Epistemic uncertainty</span><span class="desc">model knowledge</span></p>
                 <Cube3d2 :key="'p' + previewUrls.output" :url="previewUrls.output" :size="140" />
-                <Cube3dData :key="'a' + previewUrls.data" :url="previewUrls.data" class="!w-[140px] !h-[140px]" />
-                <Cube3dModel :key="'e' + previewUrls.model" :url="previewUrls.model" class="!w-[140px] !h-[140px]" />
+                <Cube3dData :key="'a' + previewUrls.data" :url="previewUrls.data" :size="140" />
+                <Cube3dModel :key="'e' + previewUrls.model" :url="previewUrls.model" :size="140" />
               </div>
             </div>
 

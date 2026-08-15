@@ -1,9 +1,9 @@
 <template>
-  <div class="w-[200px] h-[200px] relative" @click="activate">
-    <div ref="vtkContainer" style="width: 200px; height: 200px;" />
+  <div class="relative" :style="{ width: size + 'px', height: size + 'px' }" @click="activate">
+    <div ref="vtkContainer" :style="{ width: size + 'px', height: size + 'px' }" />
     <!-- Snapshot mode: click to enter 3D interaction (see useVtkView for notes on the WebGL context limit) -->
     <img v-if="snapshot && !live" :src="snapshot" @click="activate"
-         class="absolute left-0 top-0 w-[200px] h-[200px] cursor-pointer z-10"
+         class="absolute left-0 top-0 cursor-pointer z-10" :style="{ width: size + 'px', height: size + 'px' }"
          title="Click to enter 3D interaction" />
   </div>
 </template>
@@ -27,6 +27,11 @@ export default {
     url:{
         type:String,
         default:""
+    },
+    // Render size (px): default 200 keeps the old usage
+    size:{
+        type:Number,
+        default:200
     },
     type:{
         type:[String,Number],
@@ -58,7 +63,7 @@ export default {
         const fullScreenRenderer = vtkFullScreenRenderWindow.newInstance({
           rootContainer: vtkContainer.value,
           background: [1, 1, 1], // white background
-          containerStyle: {height: '200px',width:"200px"},
+          containerStyle: {height: `${props.size}px`, width: `${props.size}px`},
         });
         const renderer = fullScreenRenderer.getRenderer();
         const renderWindow = fullScreenRenderer.getRenderWindow();
